@@ -3,7 +3,6 @@ from pymatgen.core.surface import SlabGenerator
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder, plot_slab
 from matplotlib import pyplot as plt
 import lammps
-import lammps
 
 nameOfFile = input("Please type the name of cif file. You can download cif file from "
                    "https://next-gen.materialsproject.org/materials.\n")
