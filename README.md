@@ -4,7 +4,7 @@ WCLDA is a python script that using LAMMPS and PYMATGEN libraries to create data
 
 ## Installation
 
-Download the project, run main script and follow instructions.
+Download the project, run the main script and follow instructions.
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
