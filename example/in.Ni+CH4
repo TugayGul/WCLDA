@@ -1,0 +1,62 @@
+log             NVT.log
+units           real
+atom_style      charge
+boundary        p p p
+
+## Sistem bilgilerini oku
+read_data       lammpsdata.input
+
+## Hesabin gerceklesecegi sicaklik
+variable Tfin equal 2000
+
+## Termostatlarin karakteristik zamani
+variable Tdamp equal $(400*dt)
+
+## Atomlararasi potansiyel
+pair_style      reax/c NULL safezone 1.6 mincap 100
+pair_coeff      * * ffield.reax Ni C H
+
+## Komsuluk tablosu
+neighbor        2.0 bin
+neigh_modify    every 1 delay 0 check yes
+
+## Su ve yuzey atomlarini ayri gruplara ayir
+group            nickel type 1 
+group            methane type 2 3
+compute          1 nickel temp
+compute          2 methane temp
+variable         nitemp equal c_1
+variable         ch4temp equal c_2
+
+## Dosyaya yazdirma
+dump            1 all custom 40 Ni+CH4.lammpstrj id type q xu yu zu 
+dump_modify     1 sort id
+thermo_style custom  step temp c_1 c_2 etotal pe ke 
+thermo 100
+timestep 1.0
+
+## Atomlar uzerindeki yuk hesabi icin
+fix 1 all qeq/reax 100 0.0 10.0 1.0e-6 reax/c
+
+## Baslangic optimizasyonu
+minimize 0.0 1.0e-8 20 100000
+
+## Termostatlar
+velocity all create 1. 4928459 rot yes dist gaussian
+fix 2 all nvt temp 1. 1. ${Tdamp}
+run 20000
+unfix 2
+fix 3 all nvt temp 300. ${Tfin} ${Tdamp}
+run 20000
+unfix 3
+
+## Son evrede ortalama potansiyel enerjiyi hesapla
+## 10 ardisik basamagin averaji
+fix 4 all nvt temp ${Tfin} ${Tfin} ${Tdamp}
+compute mype all pe
+fix myPotAvg all ave/time 10 1 10 c_mype ave running file pe_av_tot.dat
+run 20000
+
+## Hesap kesilirse kaldigi yerden baslatmak icin dosyaya hesap
+## bilgilerini yazdir
+write_restart lmp-restart-nvt-system.output

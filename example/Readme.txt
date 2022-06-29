@@ -1,0 +1,1 @@
+Copy example files to main directory and run the script.
